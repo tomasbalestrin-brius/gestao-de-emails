@@ -44,10 +44,12 @@ Sistema completo para gerenciamento de tickets de suporte através de emails, co
 
 ### Requisitos
 - Node.js 20+
-- PostgreSQL 15+
-- Redis 7+
+- **Conta Supabase** (PostgreSQL gerenciado - gratuito)
+- Redis (local ou Upstash Redis gratuito)
 - Conta AWS (para SES)
 - Conta Cloudflare (para R2)
+
+> ✨ **Usando Supabase**: Este projeto está configurado para usar Supabase como banco de dados PostgreSQL gerenciado. Veja `backend/SUPABASE_SETUP.md` para instruções detalhadas.
 
 ### 1. Clonar o repositório
 
