@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "regions": ["gru1"],
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://vgzylypzrudzrhueoros.supabase.co",
+    "NEXT_PUBLIC_APP_NAME": "Sistema de Gestão de Emails"
+  }
+}
