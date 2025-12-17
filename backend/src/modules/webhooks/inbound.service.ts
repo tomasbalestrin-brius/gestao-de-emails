@@ -4,6 +4,7 @@ import { SESMessage } from '../../types';
 import r2Service from '../../services/r2.service';
 import { validateFileType, validateFileSize, sanitizeFilename } from '../../utils/validators';
 import logger from '../../services/logger.service';
+import { webhookDispatcherQueue } from '../../config/queues';
 
 export class InboundService {
   async processInboundEmail(sesMessage: SESMessage) {
@@ -149,8 +150,13 @@ export class InboundService {
         ticketId: ticket.id,
       });
 
-      // TODO: Adicionar à fila BullMQ para disparar webhook externo
-      // await webhookQueue.add('ticket.created', { ticketId: ticket.id });
+      // Adicionar à fila BullMQ para disparar webhook externo
+      const webhookEvent = parsed.inReplyTo ? 'email.received' : 'ticket.created';
+      await webhookDispatcherQueue.add(webhookEvent, {
+        event: webhookEvent,
+        ticketId: ticket.id,
+        messageId: message.id,
+      });
 
       return { success: true, ticketId: ticket.id, messageId: message.id };
     } catch (error: any) {

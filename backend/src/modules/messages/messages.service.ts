@@ -1,6 +1,7 @@
 import prisma from '../../config/database';
 import { ReplyToTicketDTO } from './dto';
 import { randomUUID } from 'crypto';
+import { emailSenderQueue, webhookDispatcherQueue } from '../../config/queues';
 
 export class MessagesService {
   async replyToTicket(ticketId: string, userId: string, data: ReplyToTicketDTO) {
@@ -65,8 +66,8 @@ export class MessagesService {
       },
     });
 
-    // TODO: Adicionar à fila BullMQ para envio via SES
-    // await emailQueue.add('send-email', { messageId: message.id });
+    // Adicionar à fila BullMQ para envio via SES
+    await emailSenderQueue.add('send-email', { messageId: message.id });
 
     return message;
   }
