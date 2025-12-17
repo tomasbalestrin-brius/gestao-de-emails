@@ -1,0 +1,50 @@
+{
+  "name": "email-support-backend",
+  "version": "1.0.0",
+  "description": "Sistema de gestão de emails para suporte ao cliente - Backend",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "worker:email": "tsx src/workers/email-processor.worker.ts",
+    "worker:sender": "tsx src/workers/email-sender.worker.ts",
+    "worker:webhook": "tsx src/workers/webhook-dispatcher.worker.ts",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "keywords": ["email", "support", "tickets", "fastify"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/rate-limit": "^9.1.0",
+    "@prisma/client": "^5.22.0",
+    "@aws-sdk/client-ses": "^3.679.0",
+    "@aws-sdk/client-s3": "^3.679.0",
+    "fastify": "^4.28.1",
+    "bullmq": "^5.14.2",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "bcrypt": "^5.1.1",
+    "zod": "^3.23.8",
+    "mailparser": "^3.7.1",
+    "email-reply-parser": "^5.0.2",
+    "dotenv": "^16.4.5",
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.2.2",
+    "axios": "^1.7.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/bcrypt": "^5.0.2",
+    "typescript": "^5.6.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.1",
+    "prisma": "^5.22.0"
+  }
+}

@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  AGENT
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password_hash String
+  name          String
+  role          UserRole  @default(AGENT)
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  last_login_at DateTime?
+
+  @@map("users")
+}
+
+enum TicketStatus {
+  NEW
+  IN_PROGRESS
+  WAITING
+  RESOLVED
+  REOPENED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Ticket {
+  id               String         @id @default(uuid())
+  customer_email   String
+  customer_name    String?
+  subject          String
+  status           TicketStatus   @default(NEW)
+  priority         TicketPriority @default(MEDIUM)
+  tags             String[]       @default([])
+  email_message_id String         @unique
+  email_references String?
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+  last_message_at  DateTime       @default(now())
+  resolved_at      DateTime?
+  messages         Message[]
+
+  @@index([customer_email])
+  @@index([status])
+  @@index([created_at])
+  @@map("tickets")
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+model Message {
+  id                String           @id @default(uuid())
+  ticket_id         String
+  direction         MessageDirection
+  from_email        String
+  from_name         String?
+  to_email          String
+  subject           String
+  body_text         String           @db.Text
+  body_html         String?          @db.Text
+  stripped_text     String?          @db.Text
+  message_id        String           @unique
+  in_reply_to       String?
+  references        String?
+  has_attachments   Boolean          @default(false)
+  attachment_count  Int              @default(0)
+  sent_at           DateTime
+  delivered_at      DateTime?
+  created_at        DateTime         @default(now())
+  ticket            Ticket           @relation(fields: [ticket_id], references: [id], onDelete: Cascade)
+  attachments       Attachment[]
+
+  @@index([ticket_id])
+  @@map("messages")
+}
+
+model Attachment {
+  id           String   @id @default(uuid())
+  message_id   String
+  filename     String
+  content_type String
+  size         Int
+  r2_key       String
+  r2_url       String
+  created_at   DateTime @default(now())
+  message      Message  @relation(fields: [message_id], references: [id], onDelete: Cascade)
+
+  @@index([message_id])
+  @@map("attachments")
+}
+
+model EmailConfig {
+  id              String   @id @default(uuid())
+  ses_region      String
+  ses_access_key  String
+  ses_secret_key  String
+  from_email      String
+  from_name       String
+  domain          String
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("email_configs")
+}
+
+model WebhookConfig {
+  id          String       @id @default(uuid())
+  name        String
+  url         String
+  events      String[]
+  headers     Json?
+  is_active   Boolean      @default(true)
+  retry_count Int          @default(3)
+  timeout_ms  Int          @default(30000)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  logs        WebhookLog[]
+
+  @@map("webhook_configs")
+}
+
+model WebhookLog {
+  id                String        @id @default(uuid())
+  webhook_config_id String
+  event             String
+  payload           Json
+  status_code       Int?
+  response_body     String?       @db.Text
+  error_message     String?       @db.Text
+  attempt_number    Int           @default(1)
+  duration_ms       Int?
+  created_at        DateTime      @default(now())
+  webhook_config    WebhookConfig @relation(fields: [webhook_config_id], references: [id], onDelete: Cascade)
+
+  @@index([webhook_config_id])
+  @@index([created_at])
+  @@map("webhook_logs")
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
+
+model SystemLog {
+  id         String   @id @default(uuid())
+  level      LogLevel
+  message    String   @db.Text
+  metadata   Json?
+  created_at DateTime @default(now())
+
+  @@index([level])
+  @@index([created_at])
+  @@map("system_logs")
+}
