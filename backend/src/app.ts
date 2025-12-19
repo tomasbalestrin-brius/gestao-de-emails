@@ -10,6 +10,7 @@ import logger from './services/logger.service';
 import authRoutes from './modules/auth/auth.controller';
 import ticketsRoutes from './modules/tickets/tickets.controller';
 import webhookRoutes from './modules/webhooks/inbound.controller';
+import healthRoutes from './modules/health/health.controller';
 // import adminRoutes from './modules/admin/admin.controller';
 
 export async function buildApp() {
@@ -33,12 +34,8 @@ export async function buildApp() {
   // Error handler
   app.setErrorHandler(errorHandler);
 
-  // Health check
-  app.get('/health', async () => {
-    return { status: 'ok', timestamp: new Date().toISOString() };
-  });
-
   // Registrar rotas
+  await app.register(healthRoutes);
   await app.register(authRoutes, { prefix: '/auth' });
   await app.register(ticketsRoutes, { prefix: '/api/tickets' });
   await app.register(webhookRoutes, { prefix: '/webhooks' });
